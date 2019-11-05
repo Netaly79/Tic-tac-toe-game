@@ -4,14 +4,14 @@ import './index.css';
 
 
 function Square (props) {
-      return (
-        <button className="square"
-         onClick={props.onClick}
-         > 
-          {props.value}
-        </button>
-      );
-    }
+    return (
+      <button className="square"
+        onClick={props.onClick}
+        > 
+        {props.value}
+      </button>
+    );
+}
 
   
   class Board extends React.Component {
@@ -22,7 +22,6 @@ function Square (props) {
       onClick={() => this.props.onClick(i)}
       />);
     }
-  
     render() {
       return (
         <div>
@@ -55,22 +54,27 @@ function Square (props) {
         }],
         xIsNext:true,
         stepNumber:0,
+        pos: [],
       }
     }
     handleClick(i){
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
       const current = history[history.length - 1];
       const squares = current.squares.slice();
+      const post= this.state.pos.slice(0, this.state.stepNumber + 1);
       if (calculateWinner(squares) || squares[i]) {
         return;
       }
       squares[i] = this.state.xIsNext ? 'X' : 'O';
+      post[history.length]=i;
+      
       this.setState({
         history: history.concat([{
           squares: squares,
         }]),
         stepNumber:history.length,
         xIsNext: !this.state.xIsNext,
+        pos:post,
       });
     }
 
@@ -85,25 +89,28 @@ function Square (props) {
 
     render() {
       const history = this.state.history;
-    const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
-
+      const current = history[this.state.stepNumber];
+      const winner = calculateWinner(current.squares);
       const moves=history.map((step,move)=>{
         const desc = move ?
-        'Перейти к ходу #' + move :
+        'Перейти к ходу #' + move + '  ячейка #'+this.state.pos[move] :
         'К началу игры';
-      return (
+        return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
         </li>
-      );
+        );
       })
   
       let status;
       if (winner) {
         status = 'Выиграл ' + winner;
-      } else {
+        } 
+      else {
         status = 'Следующий ход: ' + (this.state.xIsNext ? 'X' : 'O');
+      }
+      if (history.length==10){
+        status='Игра окончена';
       }
       return (
         <div className="game">
